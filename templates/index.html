@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ScopeRunner — local recon &amp; reporting console</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">/// local operator console</div>
+      <h1>ScopeRunner</h1>
+      <p>Give it an authorized scope. It runs recon, probes for live hosts, scans with maintained
+         detection templates, and writes a structured report — entirely on your machine.</p>
+    </div>
+    <div class="tool-chips" id="toolChips">
+      <span class="chip"><span class="dot"></span>checking tools…</span>
+    </div>
+  </header>
+
+  <div class="setup-banner" id="setupBanner"></div>
+
+  <div class="grid">
+
+    <!-- LEFT: scope & options -->
+    <section class="panel">
+      <h2>Scope &amp; Options</h2>
+
+      <label class="field">
+        <span class="label-text">Target scope — one entry per line</span>
+        <textarea id="scope" placeholder="example.com&#10;*.example.com&#10;192.168.1.0/24&#10;# lines starting with # are comments"></textarea>
+        <div class="hint">Domains, wildcard subdomains, single IPs, or CIDR blocks (/24 or smaller). Only what's listed here is ever actively tested.</div>
+      </label>
+
+      <label class="field">
+        <span class="label-text">Scan intensity</span>
+        <select id="intensity">
+          <option value="stealthy">Stealthy — low rate, high/critical only</option>
+          <option value="normal" selected>Normal — balanced</option>
+          <option value="aggressive">Aggressive — high rate, all severities</option>
+        </select>
+      </label>
+
+      <div class="toggle-row">
+        <div>
+          <p class="label-text" style="margin:0">Deep crawl (katana)</p>
+          <p class="sub">JS-aware crawl for endpoint discovery, feeds vuln scan</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="deepCrawl" checked /><span class="track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <p class="label-text" style="margin:0">Port scan (naabu)</p>
+          <p class="sub">Active — scans declared IP/CIDR scope and resolved hosts</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="portScan" /><span class="track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <p class="label-text" style="margin:0">Content discovery (ffuf)</p>
+          <p class="sub">Active — brute-forces common paths on live web targets</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="contentDiscovery" /><span class="track"></span></label>
+      </div>
+
+      <div class="authorize">
+        <input type="checkbox" id="authorized" />
+        <p class="label-text">I have explicit written authorization to test every target in this
+           scope (e.g. it matches a bug bounty program's published scope, or my own infrastructure),
+           and I accept responsibility for how this tool is used.</p>
+      </div>
+
+      <button class="primary" id="startBtn">Start scan</button>
+      <div class="error-banner" id="errorBanner"></div>
+    </section>
+
+    <!-- RIGHT: pipeline + log + results -->
+    <section>
+      <div class="panel">
+        <h2>Pipeline</h2>
+        <p class="hint" style="margin:-6px 0 14px;">Blind vulnerabilities (blind SSRF, blind command injection, blind XXE) are confirmed via a real out-of-band callback (OAST), not just a heuristic match.</p>
+        <div class="pipeline" id="pipeline"></div>
+        <div class="terminal" id="terminal"><span class="ln idle">// waiting to start…</span></div>
+      </div>
+
+      <div class="panel" style="margin-top:18px;">
+        <h2>Results</h2>
+        <div id="resultsArea">
+          <div class="empty-note">Run a scan to see findings here.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
